@@ -134,10 +134,10 @@ struct FloatType
     {
         delete value;
     }
-    FloatType& add( float rhs = 0.f );
-    FloatType& subtract( float rhs = 0.f );
-    FloatType& multiply( float rhs = 0.f );
-    FloatType& divide( float rhs = 0.f );
+    FloatType& add( float rhs );
+    FloatType& subtract( float rhs );
+    FloatType& multiply( float rhs );
+    FloatType& divide( float rhs );
     FloatType& add( const FloatType& rhs );
     FloatType& subtract( const FloatType& rhs );
     FloatType& multiply( const FloatType& rhs );
@@ -161,10 +161,10 @@ struct DoubleType
         delete value;
     }
 
-    DoubleType& add( double rhs = 0.0 );
-    DoubleType& subtract( double rhs = 0.0 );
-    DoubleType& multiply( double rhs = 0.0 );
-    DoubleType& divide( double rhs = 0.0 );
+    DoubleType& add( double rhs );
+    DoubleType& subtract( double rhs );
+    DoubleType& multiply( double rhs );
+    DoubleType& divide( double rhs );
     DoubleType& add( const FloatType& rhs );
     DoubleType& subtract( const FloatType& rhs );
     DoubleType& multiply( const FloatType& rhs );
@@ -188,10 +188,10 @@ struct IntType
         delete value;
     }
 
-    IntType& add( int rhs = 0 );
-    IntType& subtract( int rhs = 0 );
-    IntType& multiply( int rhs = 0 );
-    IntType& divide( int rhs = 0 );
+    IntType& add( int rhs );
+    IntType& subtract( int rhs );
+    IntType& multiply( int rhs );
+    IntType& divide( int rhs );
     IntType& add( const FloatType& rhs );
     IntType& subtract( const FloatType& rhs );
     IntType& multiply( const FloatType& rhs );

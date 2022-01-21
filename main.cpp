@@ -20,10 +20,7 @@ struct A {};
 struct HeapA
 {
     A* ptrA = nullptr;
-    HeapA()
-    {
-        ptrA = new A();
-    }
+    HeapA() : ptrA(new A()) {}
     ~HeapA()
     {
         delete ptrA;
@@ -132,10 +129,7 @@ struct FloatType
 {
     float* value = nullptr;
     
-    FloatType(float v)
-    {
-        value = new float(v);
-    }
+    FloatType(float v) : value(new float(v)) {}
     ~FloatType()
     {
         delete value;
@@ -161,10 +155,7 @@ struct FloatType
 struct DoubleType
 {
     double* value = nullptr;
-    DoubleType(double v)
-    {
-        value = new double(v);
-    }
+    DoubleType(double v) : value(new double(v)) {}
     ~DoubleType()
     {
         delete value;
@@ -191,10 +182,7 @@ struct DoubleType
 struct IntType
 {
     int* value = nullptr;
-    IntType(int v)
-    {
-        value = new int(v);
-    }
+    IntType(int v) : value(new int(v)) {}
     ~IntType()
     {
         delete value;

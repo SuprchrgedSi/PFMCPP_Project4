@@ -53,12 +53,286 @@ Project 4: Part 4 / 9
  You will need to use Forward Declaration and out-of-class definitions to complete this.
  */
 
-#include "Point.h"
-#include "FloatType.h"
-#include "DoubleType.h"
-#include "IntType.h"
-
 #include <iostream>
+#include <cmath>
+
+struct IntType;
+struct FloatType;
+struct DoubleType;
+
+struct DoubleType
+{
+    explicit DoubleType(double v) : value(new double(v))  {}
+    ~DoubleType()
+    {
+        delete value;
+    }
+
+    DoubleType& add( double rhs );
+    DoubleType& subtract( double rhs );
+    DoubleType& multiply( double rhs );
+    DoubleType& divide( double rhs );
+    operator double() { return *value; }
+    double getValue() const { return *value; } 
+
+    DoubleType& pow(const FloatType&);
+    DoubleType& pow(const DoubleType&);
+    DoubleType& pow(const IntType&);
+    DoubleType& pow(double dbl);
+
+private:
+    DoubleType& pow_internal(const double exp);
+    double* value = nullptr;
+};
+
+struct FloatType
+{
+    explicit FloatType(float v) : value(new float(v)) {}
+    ~FloatType()
+    {
+        delete value;
+    }
+    FloatType& add( float rhs );
+    FloatType& subtract( float rhs );
+    FloatType& multiply( float rhs );
+    FloatType& divide( float rhs );
+    operator float() { return *value; }
+    float getValue() const { return *value; }
+
+    FloatType& pow(const FloatType&);
+    FloatType& pow(const DoubleType&);
+    FloatType& pow(const IntType&);
+    FloatType& pow(float flt);
+
+private:
+    FloatType& pow_internal(const float exp);
+    float* value = nullptr;
+};
+
+struct IntType
+{
+    explicit IntType(int v) : value(new int(v)) {}
+    ~IntType()
+    {
+        delete value;
+    }
+
+    IntType& add( int rhs );
+    IntType& subtract( int rhs );
+    IntType& multiply( int rhs );
+    IntType& divide( int rhs );
+    operator int() { return *value; }
+    int getValue() const { return *value; }
+    
+    IntType& pow(const FloatType&);
+    IntType& pow(const DoubleType&);
+    IntType& pow(const IntType&);
+    IntType& pow(int i);
+
+private:
+    IntType& pow_internal(const int exp);
+    int* value = nullptr;
+};
+
+DoubleType& DoubleType::add(double rhs) 
+{ 
+    *value += rhs;
+    return *this;
+}
+DoubleType& DoubleType::subtract(double rhs) 
+{ 
+    *value -= rhs;
+    return *this;
+}
+DoubleType& DoubleType::multiply(double rhs) 
+{ 
+    *value *= rhs;
+    return *this;
+}
+DoubleType& DoubleType::divide(double rhs) 
+{ 
+    if (rhs == 0.0)
+    {
+        
+        std::cout << "warning: floating point division by zero!" << std::endl;
+    }
+    *value /= rhs;
+    return *this;
+}
+
+DoubleType& DoubleType::pow(const FloatType& ft)
+{
+    return pow_internal(static_cast<double>(ft.getValue()));
+}
+
+DoubleType& DoubleType::pow(const DoubleType& dt)
+{
+    return pow_internal(dt.getValue());
+}
+
+DoubleType& DoubleType::pow(const IntType& it)
+{
+    return pow_internal(static_cast<double>(it.getValue()));
+}
+
+DoubleType& DoubleType::pow(double dbl)
+{
+    return pow_internal(dbl);
+}
+
+DoubleType& DoubleType::pow_internal(const double exp)
+{
+    *value = std::pow(*value, exp);
+    return *this;
+}
+
+FloatType& FloatType::add(float rhs) 
+{ 
+    *value += rhs;
+    return *this;
+}
+
+FloatType& FloatType::subtract(float rhs) 
+{ 
+    *value -= rhs;
+    return *this;
+}
+
+FloatType& FloatType::multiply(float rhs) 
+{ 
+    *value *= rhs;
+    return *this;
+}
+
+FloatType& FloatType::divide(float rhs) 
+{ 
+    if (rhs == 0.f) 
+    {
+        std::cout << "warning: floating point division by zero!" << std::endl;
+    }
+    *value /= rhs;
+    return *this;
+}
+
+FloatType& FloatType::pow(const FloatType& ft)
+{
+    return pow_internal(ft.getValue());
+}
+
+FloatType& FloatType::pow(const DoubleType& dt)
+{
+    return pow_internal(static_cast<float>(dt.getValue()));
+}
+
+FloatType& FloatType::pow(const IntType& it)
+{
+    return pow_internal(static_cast<float>(it.getValue()));
+}
+
+FloatType& FloatType::pow(float flt)
+{
+    return pow_internal(flt);
+}
+
+FloatType& FloatType::pow_internal(const float exp)
+{
+    *value = std::pow(*value, exp);
+    return *this;
+}
+
+
+
+IntType& IntType::add(int rhs) 
+{ 
+    *value += rhs;
+    return *this;
+}
+IntType& IntType::subtract(int rhs) 
+{ 
+    *value -= rhs;
+    return *this;
+}
+IntType& IntType::multiply(int rhs) 
+{ 
+    *value *= rhs;
+    return *this;
+}
+IntType& IntType::divide(int rhs) 
+{ 
+    if (rhs == 0)
+    {
+        std::cout << "error: integer division by zero is an error and will crash the program!" << std::endl;
+    }
+    else *value /= rhs;
+    return *this;
+}
+
+IntType& IntType::pow(const FloatType& ft)
+{
+    return pow_internal(static_cast<int>(ft.getValue()));
+}
+
+IntType& IntType::pow(const DoubleType& dt)
+{
+    return pow_internal(static_cast<int>(dt.getValue()));
+}
+
+IntType& IntType::pow(const IntType& it)
+{
+    return pow_internal(it.getValue());
+}
+
+IntType& IntType::pow(int i)
+{
+    return pow_internal(i);
+}
+
+IntType& IntType::pow_internal(const int exp)
+{
+    *value = static_cast<int>(std::pow(static_cast<float>(*value), exp));
+    return *this;
+}
+
+struct Point
+{
+    Point(float x1,float y1) : x(x1), y(y1) {}
+    
+    Point (const FloatType& ft1, const FloatType& ft2) : 
+    x(ft1.getValue()), 
+    y(ft2.getValue()) {}
+    
+    Point (const DoubleType& dt1, const DoubleType& dt2): 
+    x(static_cast<float>(dt1.getValue())), 
+    y(static_cast<float>(dt2.getValue())) {}
+    
+    Point (const IntType& it1, const IntType& it2) : 
+    x(static_cast<int>(it1.getValue())), 
+    y(static_cast<int>(it2.getValue())) {}
+    
+    void toString();
+
+    Point& multiply(float m); 
+    Point& multiply(const FloatType& ft) 
+        { return multiply(ft.getValue()); } 
+    Point& multiply(const DoubleType& dt) 
+        { return multiply(static_cast<float>(dt.getValue())); }  
+    Point& multiply(const IntType& it)
+        { return multiply(static_cast<float>(it.getValue())); }  
+
+private:
+    float x{0}, y{0};
+};
+
+void Point::toString()
+    {std::cout << "Point { x: " << x << ", y: " << y << " }" << std::endl;}
+        
+Point& Point::multiply(float m)
+{
+    x *= m;
+    y *= m;
+    return *this;
+}
+
 
 void part4()
 {

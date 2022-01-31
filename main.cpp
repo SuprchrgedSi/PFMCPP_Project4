@@ -72,8 +72,7 @@ struct DoubleType
     DoubleType& subtract( double rhs );
     DoubleType& multiply( double rhs );
     DoubleType& divide( double rhs );
-    operator double() { return *value; }
-    double getValue() const { return *value; } 
+    operator double() const { return *value; } 
 
     DoubleType& pow(const FloatType&);
     DoubleType& pow(const DoubleType&);
@@ -96,8 +95,7 @@ struct FloatType
     FloatType& subtract( float rhs );
     FloatType& multiply( float rhs );
     FloatType& divide( float rhs );
-    operator float() { return *value; }
-    float getValue() const { return *value; }
+    operator float() const { return *value; }
 
     FloatType& pow(const FloatType&);
     FloatType& pow(const DoubleType&);
@@ -121,8 +119,7 @@ struct IntType
     IntType& subtract( int rhs );
     IntType& multiply( int rhs );
     IntType& divide( int rhs );
-    operator int() { return *value; }
-    int getValue() const { return *value; }
+    operator int() const { return *value; }
     
     IntType& pow(const FloatType&);
     IntType& pow(const DoubleType&);
@@ -162,17 +159,17 @@ DoubleType& DoubleType::divide(double rhs)
 
 DoubleType& DoubleType::pow(const FloatType& ft)
 {
-    return pow_internal(static_cast<double>(ft.getValue()));
+    return pow_internal(static_cast<double>(ft));
 }
 
 DoubleType& DoubleType::pow(const DoubleType& dt)
 {
-    return pow_internal(dt.getValue());
+    return pow_internal(dt);
 }
 
 DoubleType& DoubleType::pow(const IntType& it)
 {
-    return pow_internal(static_cast<double>(it.getValue()));
+    return pow_internal(static_cast<double>(it));
 }
 
 DoubleType& DoubleType::pow(double dbl)
@@ -216,17 +213,17 @@ FloatType& FloatType::divide(float rhs)
 
 FloatType& FloatType::pow(const FloatType& ft)
 {
-    return pow_internal(ft.getValue());
+    return pow_internal(ft);
 }
 
 FloatType& FloatType::pow(const DoubleType& dt)
 {
-    return pow_internal(static_cast<float>(dt.getValue()));
+    return pow_internal(static_cast<float>(dt));
 }
 
 FloatType& FloatType::pow(const IntType& it)
 {
-    return pow_internal(static_cast<float>(it.getValue()));
+    return pow_internal(static_cast<float>(it));
 }
 
 FloatType& FloatType::pow(float flt)
@@ -269,17 +266,17 @@ IntType& IntType::divide(int rhs)
 
 IntType& IntType::pow(const FloatType& ft)
 {
-    return pow_internal(static_cast<int>(ft.getValue()));
+    return pow_internal(static_cast<int>(ft));
 }
 
 IntType& IntType::pow(const DoubleType& dt)
 {
-    return pow_internal(static_cast<int>(dt.getValue()));
+    return pow_internal(static_cast<int>(dt));
 }
 
 IntType& IntType::pow(const IntType& it)
 {
-    return pow_internal(it.getValue());
+    return pow_internal(it);
 }
 
 IntType& IntType::pow(int i)
@@ -298,26 +295,26 @@ struct Point
     Point(float x1,float y1) : x(x1), y(y1) {}
     
     Point (const FloatType& ft1, const FloatType& ft2) : 
-    x(ft1.getValue()), 
-    y(ft2.getValue()) {}
+    x(ft1), 
+    y(ft2) {}
     
     Point (const DoubleType& dt1, const DoubleType& dt2): 
-    x(static_cast<float>(dt1.getValue())), 
-    y(static_cast<float>(dt2.getValue())) {}
+    x(static_cast<float>(dt1)), 
+    y(static_cast<float>(dt2)) {}
     
     Point (const IntType& it1, const IntType& it2) : 
-    x(static_cast<int>(it1.getValue())), 
-    y(static_cast<int>(it2.getValue())) {}
+    x(static_cast<int>(it1)), 
+    y(static_cast<int>(it2)) {}
     
     void toString();
 
     Point& multiply(float m); 
     Point& multiply(const FloatType& ft) 
-        { return multiply(ft.getValue()); } 
+        { return multiply(static_cast<float>(ft)); } 
     Point& multiply(const DoubleType& dt) 
-        { return multiply(static_cast<float>(dt.getValue())); }  
+        { return multiply(static_cast<float>(dt)); }  
     Point& multiply(const IntType& it)
-        { return multiply(static_cast<float>(it.getValue())); }  
+        { return multiply(static_cast<float>(it)); }  
 
 private:
     float x{0}, y{0};

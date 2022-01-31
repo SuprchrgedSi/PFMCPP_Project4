@@ -15,7 +15,14 @@ struct FloatType
     FloatType& multiply( float rhs );
     FloatType& divide( float rhs );
     operator float() { return *value; }
+    float getValue() const { return *value; }
+
+    FloatType& pow(const FloatType&);
+    FloatType& pow(const DoubleType&);
+    FloatType& pow(const IntType&);
+    FloatType& pow(float flt);
 
 private:
+    FloatType& pow_internal(const float exp);
     float* value = nullptr;
 };

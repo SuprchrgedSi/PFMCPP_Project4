@@ -16,14 +16,15 @@ struct DoubleType
     DoubleType& multiply( double rhs );
     DoubleType& divide( double rhs );
     operator double() { return *value; }
+    double getValue() const { return *value; } 
 
-    // FloatType& pow(const FloatType&);
-    // void pow(const DoubleType&);
-    // void pow(const IntType&);
-    // void pow(double dbl);
+    DoubleType& pow(const FloatType&);
+    DoubleType& pow(const DoubleType&);
+    DoubleType& pow(const IntType&);
+    DoubleType& pow(double dbl);
 
 private:
-    // void pow_internal();
+    DoubleType& pow_internal(const double exp);
     double* value = nullptr;
 };
 

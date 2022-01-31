@@ -5,7 +5,7 @@ struct DoubleType;
 
 struct IntType
 {
-    IntType(int v) : value(new int(v)) {}
+    explicit IntType(int v) : value(new int(v)) {}
     ~IntType()
     {
         delete value;

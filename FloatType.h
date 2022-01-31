@@ -5,7 +5,7 @@ struct IntType;
 
 struct FloatType
 {
-    FloatType(float v) : value(new float(v)) {}
+    explicit FloatType(float v) : value(new float(v)) {}
     ~FloatType()
     {
         delete value;

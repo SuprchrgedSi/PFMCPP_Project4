@@ -5,7 +5,7 @@ struct FloatType;
 
 struct DoubleType
 {
-    DoubleType(double v) : value(new double(v)) {}
+    explicit DoubleType(double v) : value(new double(v))  {}
     ~DoubleType()
     {
         delete value;

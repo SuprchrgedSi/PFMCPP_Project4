@@ -149,7 +149,10 @@ DoubleType& DoubleType::multiply(double rhs)
 DoubleType& DoubleType::divide(double rhs) 
 { 
     if (rhs == 0.0)
-        { std::cout << "warning: floating point division by zero!" << std::endl; }
+    { 
+        std::cout << "warning: floating point division by zero!" << std::endl; 
+    }
+
     *value /= rhs;
     return *this;
 }
@@ -201,7 +204,10 @@ FloatType& FloatType::multiply(float rhs)
 FloatType& FloatType::divide(float rhs) 
 { 
     if (rhs == 0.f) 
-        { std::cout << "warning: floating point division by zero!" << std::endl; }
+    { 
+        std::cout << "warning: floating point division by zero!" << std::endl; 
+    }
+    
     *value /= rhs;
     return *this;
 }
@@ -232,8 +238,6 @@ FloatType& FloatType::pow_internal(const float exp)
     return *this;
 }
 
-
-
 IntType& IntType::add(int rhs) 
 { 
     *value += rhs;
@@ -252,9 +256,13 @@ IntType& IntType::multiply(int rhs)
 IntType& IntType::divide(int rhs) 
 { 
     if (rhs == 0)
-        { std::cout << "error: integer division by zero is an error and will crash the program!" << std::endl; }
+    { 
+        std::cout << "error: integer division by zero is an error and will crash the program!" << std::endl; 
+    }
     else 
-        { *value /= rhs; }
+    { 
+        *value /= rhs; 
+    }
     return *this;
 }
 
@@ -315,7 +323,9 @@ private:
 };
 
 void Point::toString()
-    {std::cout << "Point { x: " << x << ", y: " << y << " }" << std::endl;}
+{
+    std::cout << "Point { x: " << x << ", y: " << y << " }" << std::endl;
+}
         
 Point& Point::multiply(float m)
 {

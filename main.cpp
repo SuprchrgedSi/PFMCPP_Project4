@@ -207,7 +207,7 @@ FloatType& FloatType::divide(float rhs)
     { 
         std::cout << "warning: floating point division by zero!" << std::endl; 
     }
-    
+
     *value /= rhs;
     return *this;
 }
@@ -312,11 +312,17 @@ struct Point
 
     Point& multiply(float m); 
     Point& multiply(const FloatType& ft) 
-        { return multiply(static_cast<float>(ft)); } 
+    {
+        return multiply(static_cast<float>(ft)); 
+    } 
     Point& multiply(const DoubleType& dt) 
-        { return multiply(static_cast<float>(dt)); }  
+    { 
+        return multiply(static_cast<float>(dt)); 
+    }  
     Point& multiply(const IntType& it)
-        { return multiply(static_cast<float>(it)); }  
+    { 
+        return multiply(static_cast<float>(it)); 
+    }  
 
 private:
     float x{0}, y{0};

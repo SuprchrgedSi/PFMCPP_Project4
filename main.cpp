@@ -79,56 +79,7 @@ If you need to view an example, see: https://bitbucket.org/MatkatMusic/pfmcpptas
 */
 
 
-// void part7()
-// {
-//     Numeric ft3(3.0f);
-//     Numeric dt3(4.0);
-//     Numeric it3(5);
-    
-//     std::cout << "Calling Numeric<float>::apply() using a lambda (adds 7.0f) and Numeric<float> as return type:" << std::endl;
-//     std::cout << "ft3 before: " << ft3 << std::endl;
 
-//     {
-//         using Type = #4;
-//         ft3.apply( [](std::unique...){} );
-//     }
-
-//     std::cout << "ft3 after: " << ft3 << std::endl;
-//     std::cout << "Calling Numeric<float>::apply() twice using a free function (adds 7.0f) and void as return type:" << std::endl;
-//     std::cout << "ft3 before: " << ft3 << std::endl;
-//     ft3.apply(myNumericFreeFunct).apply(myNumericFreeFunct);
-//     std::cout << "ft3 after: " << ft3 << std::endl;
-//     std::cout << "---------------------\n" << std::endl;
-
-//     std::cout << "Calling Numeric<double>::apply() using a lambda (adds 6.0) and Numeric<double> as return type:" << std::endl;
-//     std::cout << "dt3 before: " << dt3 << std::endl;
-
-//     {
-//         using Type = #4;
-//         dt3.apply( [](std::unique...){} ); // This calls the templated apply fcn
-//     }
-    
-//     std::cout << "dt3 after: " << dt3 << std::endl;
-//     std::cout << "Calling Numeric<double>::apply() twice using a free function (adds 7.0) and void as return type:" << std::endl;
-//     std::cout << "dt3 before: " << dt3 << std::endl;
-//     dt3.apply(myNumericFreeFunct<double>).apply(myNumericFreeFunct<double>); // This calls the templated apply fcn
-//     std::cout << "dt3 after: " << dt3 << std::endl;
-//     std::cout << "---------------------\n" << std::endl;
-
-//     std::cout << "Calling Numeric<int>::apply() using a lambda (adds 5) and Numeric<int> as return type:" << std::endl;
-//     std::cout << "it3 before: " << it3 << std::endl;
-
-//     {
-//         using Type = #4;
-//         it3.apply( [](std::unique...){} );
-//     }
-//     std::cout << "it3 after: " << it3 << std::endl;
-//     std::cout << "Calling Numeric<int>::apply() twice using a free function (adds 7) and void as return type:" << std::endl;
-//     std::cout << "it3 before: " << it3 << std::endl;
-//     it3.apply(myNumericFreeFunct).apply(myNumericFreeFunct);
-//     std::cout << "it3 after: " << it3 << std::endl;
-//     std::cout << "---------------------\n" << std::endl;    
-// }
 
 /*
 your program should generate the following output EXACTLY.
@@ -277,46 +228,63 @@ struct Numeric
     using Type = NumericType;
     explicit Numeric(Type v) : value(std::make_unique<Type>(v)) {}
 
-    Numeric<Type>& operator+=( Type rhs )
+    Numeric& operator+=(const Type& rhs )
     { 
         *value += rhs;
         return *this;
     }
 
-    Numeric<Type>& operator-=( Type rhs )
+    Numeric& operator-=(const Type& rhs )
     { 
         *value -= rhs;
         return *this;
     }
 
-    Numeric<Type>& operator*=( Type rhs )
+    Numeric& operator*=(const Type& rhs )
     { 
         *value *= rhs;
         return *this;
     }
 
-    Numeric<Type>& operator/=( Type rhs )
-    {
-        if (rhs == 0.0)
-        { 
-            std::cout << "warning: floating point division by zero!" << std::endl; 
+    template <typename OtherType>
+    Numeric& operator/=(const OtherType& rhs )
+    { 
+        if constexpr (std::is_same<Type, int>::value)
+        {
+            if constexpr (std::is_same<OtherType, int>::value)
+            {
+                if (rhs == 0)
+                {
+                    std::cout << "error: integer division by zero is an error and will crash the program" << std::endl; 
+                    return *this;
+                }
+            }
+            else if constexpr (std::abs(rhs) < std::numeric_limits<OtherType>::epsilon()) 
+            {
+                    std::cout << "can't divide integers by zero!" << std::endl; 
+                    return *this;
+            }
+        }
+        else 
+        {
+            if constexpr (std::abs(rhs) < std::numeric_limits<OtherType>::epsilon())
+            { 
+                std::cout << "warning: floating point division by zero!" << std::endl; 
+            }
         }
 
         *value /= rhs;
         return *this;
     }
 
-    operator Type() const { return static_cast<Type>(*value); } 
+    operator Type() const { return *value; } 
 
-    // template <typename OtherType>
-    // operator OtherType() const { return static_cast<OtherType>(*value); } 
+    Numeric& pow(const Type& exp) { return pow_internal(exp); }
 
-    Numeric<Type>& pow(Type exp) { return pow_internal(exp); }
+    template <typename OtherType>
+    Numeric& pow(const OtherType& exp) { return pow_internal(static_cast<Type>(exp)); }
 
-    // template <typename OtherType>
-    // Numeric<Type>& pow(OtherType exp) { return pow_internal(static_cast<Type>(exp)); }
-
-    Numeric<Type>& apply(std::function<Numeric<Type>&(Type&)> func)
+    Numeric& apply(std::function<Numeric<Type>&(Type&)> func)
     {
         if (func) 
         {
@@ -336,17 +304,73 @@ struct Numeric
     }
 
 private:
-    Numeric<Type>& pow_internal(const Type exp)
+    Numeric<Type>& pow_internal(const Type& exp)
     {
-        *value = std::pow(*value, exp);
+        *value = static_cast<Type>(std::pow(*value, exp));
         return *this;
     }
     
     std::unique_ptr<Type> value;
 };
 
+template <>
+struct Numeric<double>
+{
+    using Type = double;
+    explicit Numeric(double v) : value(std::make_unique<double>(v)) {}
 
+    Numeric<double>& operator+=( double rhs )
+    { 
+        *value += rhs;
+        return *this;
+    }
 
+    Numeric<double>& operator-=( double rhs )
+    { 
+        *value -= rhs;
+        return *this;
+    }
+
+    Numeric<double>& operator*=( double rhs )
+    { 
+        *value *= rhs;
+        return *this;
+    }
+
+    Numeric<double>& operator/=( double rhs )
+    {
+        if (rhs == 0.0)
+        { 
+            std::cout << "warning: floating point division by zero!" << std::endl; 
+        }
+
+        *value /= rhs;
+        return *this;
+    }
+
+    operator double() const { return *value; } 
+
+    Numeric<double>& pow(const double& exp) { return pow_internal(exp); }
+
+    template <typename OtherType>
+    Numeric<double>& pow(const OtherType& exp) { return pow_internal(static_cast<double>(exp)); }
+
+    template <typename Callable>
+    Numeric<double>& apply(Callable c)
+    {
+        c(*value);
+        return *this;
+    }
+
+private:
+    Numeric<double>& pow_internal(const double& exp)
+    {
+        *value = static_cast<double>(std::pow(*value, exp));
+        return *this;
+    }
+    
+    std::unique_ptr<double> value;
+};
 
 struct Point
 {
@@ -390,6 +414,43 @@ Point& Point::multiply(float m)
     return *this;
 }
 
+void part3()
+{
+    Numeric<float> ft( 5.5f );
+    Numeric<double> dt( 11.1 );
+    Numeric<int> it ( 34 );
+    Numeric<double> pi( 3.14 );
+
+    ft *= ft;
+    ft *= ft;
+    ft /= it;
+    std::cout << "The result of FloatType^4 divided by IntType is: " << ft << std::endl;
+
+    dt *= 3;
+    dt += it;
+    std::cout << "The result of Numeric<Type> times 3 plus IntType is : " << dt << std::endl;
+
+    it /= static_cast<int>(pi);
+    it *= static_cast<int>(dt);
+    it -= static_cast<int>(ft);
+    std::cout << "The result of IntType divided by 3.14 multiplied by Numeric<Type> minus FloatType is: " <<  it  << std::endl;
+
+
+    std::cout << "An operation followed by attempts to divide by 0, which are ignored and warns user: " << std::endl;
+    it *= it;
+    it /= 0;
+    it /= 0.0f;
+    it /= 0.0;
+    std::cout << it << std::endl;
+    
+    it *= static_cast<int>(ft);
+    std::cout << "FloatType x IntType  =  " << it << std::endl;
+
+    it += static_cast<int>(dt);
+    it += static_cast<int>(ft);
+    it *= 24;
+    std::cout << "(IntType + Numeric<Type> + FloatType) x 24 = " << it << std::endl;
+}
 
 void part4()
 {
@@ -490,6 +551,15 @@ void myIntFreeFunct(int& val)
     val += 5;
 }
 
+template <typename FreeType>
+void myNumericFreeFunct(FreeType& val)
+{
+    val += static_cast<FreeType>(7.0);
+    // if (std::is_same<FreeType, float>::value) 
+    // else if (std::is_same<FreeType, double>::value) {val += 6.0;}
+    // else if (std::is_same<FreeType, float>::value) {val += 5;}
+}
+
 // void part6()
 // {
 //     Numeric<float> ft3(3.0f);
@@ -540,6 +610,67 @@ void myIntFreeFunct(int& val)
 //     std::cout << "---------------------\n" << std::endl;    
 // }
 
+void part7()
+{
+    Numeric ft3(3.0f);
+    Numeric dt3(4.0);
+    Numeric it3(5);
+    
+    std::cout << "Calling Numeric<float>::apply() using a lambda (adds 7.0f) and Numeric<float> as return type:" << std::endl;
+    std::cout << "ft3 before: " << ft3 << std::endl;
+
+    {
+        using Type = decltype(ft3)::Type;
+        ft3.apply( [&ft3](Type& t)-> Numeric<Type>&
+        { 
+            t += 7.0f;
+            return ft3;
+        } );
+    }
+
+    std::cout << "ft3 after: " << ft3 << std::endl;
+    std::cout << "Calling Numeric<float>::apply() twice using a free function (adds 7.0f) and void as return type:" << std::endl;
+    std::cout << "ft3 before: " << ft3 << std::endl;
+    ft3.apply(myNumericFreeFunct).apply(myNumericFreeFunct);
+    std::cout << "ft3 after: " << ft3 << std::endl;
+    std::cout << "---------------------\n" << std::endl;
+
+    std::cout << "Calling Numeric<double>::apply() using a lambda (adds 6.0) and Numeric<double> as return type:" << std::endl;
+    std::cout << "dt3 before: " << dt3 << std::endl;
+
+    {
+        using Type = decltype(dt3)::Type;
+        dt3.apply( [](Type& t) -> void
+        { 
+            t += 6.0;
+        } );
+    }
+    
+    std::cout << "dt3 after: " << dt3 << std::endl;
+    std::cout << "Calling Numeric<double>::apply() twice using a free function (adds 7.0) and void as return type:" << std::endl;
+    std::cout << "dt3 before: " << dt3 << std::endl;
+    dt3.apply(myNumericFreeFunct<double>).apply(myNumericFreeFunct<double>); // This calls the templated apply fcn
+    std::cout << "dt3 after: " << dt3 << std::endl;
+    std::cout << "---------------------\n" << std::endl;
+
+    std::cout << "Calling Numeric<int>::apply() using a lambda (adds 5) and Numeric<int> as return type:" << std::endl;
+    std::cout << "it3 before: " << it3 << std::endl;
+
+    {
+        using Type = decltype(it3)::Type;
+        it3.apply( [&it3](Type& t)-> Numeric<Type>&
+        { 
+            t += 5;
+            return it3;
+        } );
+    }
+    std::cout << "it3 after: " << it3 << std::endl;
+    std::cout << "Calling Numeric<int>::apply() twice using a free function (adds 7) and void as return type:" << std::endl;
+    std::cout << "it3 before: " << it3 << std::endl;
+    it3.apply(myNumericFreeFunct).apply(myNumericFreeFunct);
+    std::cout << "it3 after: " << it3 << std::endl;
+    std::cout << "---------------------\n" << std::endl;    
+}
 
 
 /*
@@ -556,45 +687,6 @@ void myIntFreeFunct(int& val)
  Wait for my code review.
  */
 
-
-
-void part3()
-{
-    Numeric<float> ft( 5.5f );
-    Numeric<double> dt( 11.1 );
-    Numeric<int> it ( 34 );
-    Numeric<double> pi( 3.14 );
-
-    ft *= ft;
-    ft *= ft;
-    ft /= it;
-    std::cout << "The result of FloatType^4 divided by IntType is: " << ft << std::endl;
-
-    dt *= 3;
-    dt += it;
-    std::cout << "The result of Numeric<Type> times 3 plus IntType is : " << dt << std::endl;
-
-    it /= static_cast<int>(pi);
-    it *= static_cast<int>(dt);
-    it -= static_cast<int>(ft);
-    std::cout << "The result of IntType divided by 3.14 multiplied by Numeric<Type> minus FloatType is: " <<  it  << std::endl;
-
-
-    std::cout << "An operation followed by attempts to divide by 0, which are ignored and warns user: " << std::endl;
-    it *= it;
-    it /= 0;
-    it /= 0.0f;
-    it /= 0.0;
-    std::cout << it << std::endl;
-    
-    it *= static_cast<int>(ft);
-    std::cout << "FloatType x IntType  =  " << it << std::endl;
-
-    it += static_cast<int>(dt);
-    it += static_cast<int>(ft);
-    it *= 24;
-    std::cout << "(IntType + Numeric<Type> + FloatType) x 24 = " << it << std::endl;
-}
 
 int main()
 {   
@@ -680,7 +772,7 @@ int main()
 
     std::cout << "New value of it = it / 0 = ";
     it /= 0;
-    std::cout <<it << std::endl;
+    std::cout << it << std::endl;
 
     std::cout << "New value of ft = ft / 0 = " ;
     ft /= 0;
@@ -697,6 +789,8 @@ int main()
     part4();
 
     // part6();
+
+    part7();
 
     std::cout << "good to go!\n";
 

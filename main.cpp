@@ -255,23 +255,21 @@ struct Numeric
             {
                 if (rhs == 0)
                 {
-                    std::cout << "error: integer division by zero is an error and will crash the program" << std::endl; 
+                    std::cout << "error: integer division by zero is an error and will crash the program!" << std::endl; 
                     return *this;
                 }
             }
-            else if constexpr (std::abs(rhs) < std::numeric_limits<OtherType>::epsilon()) 
+            else if (std::abs(rhs) <= std::numeric_limits<OtherType>::epsilon()) 
             {
                     std::cout << "can't divide integers by zero!" << std::endl; 
                     return *this;
             }
         }
-        else 
-        {
-            if constexpr (std::abs(rhs) < std::numeric_limits<OtherType>::epsilon())
-            { 
-                std::cout << "warning: floating point division by zero!" << std::endl; 
-            }
+        else if (std::abs(rhs) <= std::numeric_limits<OtherType>::epsilon())
+        { 
+            std::cout << "warning: floating point division by zero!" << std::endl; 
         }
+        
 
         *value /= rhs;
         return *this;
@@ -423,7 +421,7 @@ void part3()
 
     ft *= ft;
     ft *= ft;
-    ft /= it;
+    ft /= static_cast<float>(it);
     std::cout << "The result of FloatType^4 divided by IntType is: " << ft << std::endl;
 
     dt *= 3;
@@ -714,7 +712,6 @@ int main()
 
     dt += 2.0;
     std::cout << "Numeric<Type> add result=" << dt << std::endl;
-
     
     dt -= 2.0;
     std::cout << "Numeric<Type> subtract result=" << dt << std::endl;

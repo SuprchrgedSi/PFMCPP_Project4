@@ -292,7 +292,7 @@ struct Numeric
         return *this;
     }
 
-    Numeric<Type>& apply(void(*func)(Type&))
+    Numeric& apply(void(*func)(Type&))
     {
         if (func)
         {
@@ -302,7 +302,7 @@ struct Numeric
     }
 
 private:
-    Numeric<Type>& pow_internal(const Type& exp)
+    Numeric& pow_internal(const Type& exp)
     {
         *value = static_cast<Type>(std::pow(*value, exp));
         return *this;

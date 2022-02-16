@@ -317,25 +317,25 @@ struct Numeric<double>
     using Type = double;
     explicit Numeric(double v) : value(std::make_unique<double>(v)) {}
 
-    Numeric<double>& operator+=( double rhs )
+    Numeric& operator+=( double rhs )
     { 
         *value += rhs;
         return *this;
     }
 
-    Numeric<double>& operator-=( double rhs )
+    Numeric& operator-=( double rhs )
     { 
         *value -= rhs;
         return *this;
     }
 
-    Numeric<double>& operator*=( double rhs )
+    Numeric& operator*=( double rhs )
     { 
         *value *= rhs;
         return *this;
     }
 
-    Numeric<double>& operator/=( double rhs )
+    Numeric& operator/=( double rhs )
     {
         if (rhs == 0.0)
         { 
@@ -348,20 +348,20 @@ struct Numeric<double>
 
     operator double() const { return *value; } 
 
-    Numeric<double>& pow(const double& exp) { return pow_internal(exp); }
+    Numeric& pow(const double& exp) { return pow_internal(exp); }
 
     template <typename OtherType>
-    Numeric<double>& pow(const OtherType& exp) { return pow_internal(static_cast<double>(exp)); }
+    Numeric& pow(const OtherType& exp) { return pow_internal(static_cast<double>(exp)); }
 
     template <typename Callable>
-    Numeric<double>& apply(Callable c)
+    Numeric& apply(Callable c)
     {
         c(*value);
         return *this;
     }
 
 private:
-    Numeric<double>& pow_internal(const double& exp)
+    Numeric& pow_internal(const double& exp)
     {
         *value = static_cast<double>(std::pow(*value, exp));
         return *this;

@@ -289,36 +289,21 @@ struct Numeric
 
     operator Type() const { return *value; } 
 
-    Numeric& pow(const Type& exp) { return pow_internal(exp); }
-
-    template <typename OtherType>
-    Numeric& pow(const OtherType& exp) { return pow_internal(static_cast<Type>(exp)); }
-
-    Numeric& apply(std::function<Numeric<Type>&(Type&)> func)
-    {
-        if (func) 
-        {
-            return func(*value);
-        }
-
+    template<typename OtherType>
+    Numeric& pow(const OtherType& exp) 
+    { 
+        *value = static_cast<Type>(std::pow(*value, static_cast<Type>(exp)));
         return *this;
     }
 
-    Numeric& apply(void(*func)(Type&))
+    template <typename Callable>
+    Numeric& apply(Callable c)
     {
-        if (func)
-        {
-            func(*value);
-        }
+        c(*value);
         return *this;
     }
 
 private:
-    Numeric& pow_internal(const Type& exp)
-    {
-        *value = static_cast<Type>(std::pow(*value, exp));
-        return *this;
-    }
     
     std::unique_ptr<Type> value;
 };
@@ -582,7 +567,7 @@ void part7()
     std::cout << "ft3 after: " << ft3 << std::endl;
     std::cout << "Calling Numeric<float>::apply() twice using a free function (adds 7.0f) and void as return type:" << std::endl;
     std::cout << "ft3 before: " << ft3 << std::endl;
-    ft3.apply(myNumericFreeFunct).apply(myNumericFreeFunct);
+    ft3.apply(myNumericFreeFunct<float>).apply(myNumericFreeFunct<float>);
     std::cout << "ft3 after: " << ft3 << std::endl;
     std::cout << "---------------------\n" << std::endl;
 
@@ -618,7 +603,7 @@ void part7()
     std::cout << "it3 after: " << it3 << std::endl;
     std::cout << "Calling Numeric<int>::apply() twice using a free function (adds 7) and void as return type:" << std::endl;
     std::cout << "it3 before: " << it3 << std::endl;
-    it3.apply(myNumericFreeFunct).apply(myNumericFreeFunct);
+    it3.apply(myNumericFreeFunct<int>).apply(myNumericFreeFunct<int>);
     std::cout << "it3 after: " << it3 << std::endl;
     std::cout << "---------------------\n" << std::endl;    
 }

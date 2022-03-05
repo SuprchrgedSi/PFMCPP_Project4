@@ -73,7 +73,6 @@ Use a service like https://www.diffchecker.com/diff to compare your output.
 template<typename NumericType>
 struct Temporary
 {
-    Temporary(const NumericType& t) : v(t) { incCounter(); }
     Temporary(NumericType&& t) : v(std::move(t)) { incCounter(); }
 
     Temporary(Temporary&& other) : v (std::move(other.v)) 
@@ -81,11 +80,14 @@ struct Temporary
         incCounter(); 
     }
 
+    ~Temporary(){}
+
     Temporary& operator=(Temporary&& other)
     {
         v = std::move(other.v);
         return *this;
     }
+
     
     operator NumericType() const { return v;}
     operator NumericType&() { return v;}
@@ -99,7 +101,7 @@ private:
         std::cout << "I'm a Temporary<" << typeid(v).name() << "> object, #" << counter++ << std::endl;
     }
 
-    JUCE_DECLARE_NON_COPYABLE(Temporary)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Temporary)
 };
 
 template<typename NumericType>
@@ -110,12 +112,12 @@ struct Numeric
 {
     using Type = Temporary<NumericType>;
 
-    Numeric(const NumericType& v) : value(std::make_unique<Type>(v)) {}
-
     Numeric(NumericType&& v) : value(std::make_unique<Type>(std::forward<NumericType>(v))) {}
     
 
     Numeric(Numeric&& other) : value(std::move(other.value)) {}
+
+    ~Numeric(){}
 
     Numeric& operator=(Numeric&& other)
     {
@@ -200,7 +202,7 @@ struct Numeric
 private:
     
     std::unique_ptr<Type> value;
-    JUCE_DECLARE_NON_COPYABLE(Numeric)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Numeric)
 };
 
 struct Point

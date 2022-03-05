@@ -13,14 +13,6 @@ Create a branch named Part9
  2) move these macros after the JUCE_LEAK_DETECTOR macro :
  */
 
-#define JUCE_DECLARE_NON_COPYABLE(className) \
-            className (const className&) = delete;\
-            className& operator= (const className&) = delete;
-
-#define JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(className) \
-            JUCE_DECLARE_NON_COPYABLE(className) \
-            JUCE_LEAK_DETECTOR(className)
-
 /*
  3) add JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Temporary) to the end of the  Temporary<> struct
  
@@ -70,75 +62,46 @@ i cubed: 531441
 Use a service like https://www.diffchecker.com/diff to compare your output. 
 */
 
-#include <typeinfo>
-#include <memory>
-#include<iostream>
-#include<cmath>
-#include <functional>
-
-template<typename NumericType>
-struct Temporary
-{
-    Temporary(NumericType t) : v(t)
-    {
-        std::cout << "I'm a Temporary<" << typeid(v).name() << "> object, #"
-                  << counter++ << std::endl;
-    }
-
-    operator NumericType() const 
-    { 
-        return v;
-    }
-    operator NumericType&() 
-    {
-       return v;
-    }
-private:
-    static int counter;
-    NumericType v;
-};
-
-
-template<typename Type>
-int Temporary<Type>::counter = 0;
-
-
-struct A {};
-struct HeapA
-{ 
-    HeapA() : a(new A) {}
-    ~HeapA()
-    {
-        delete a;
-    }
-    A* a = nullptr;
-};
-
 #include <iostream>
 #include <cmath>
 #include <functional>
 #include <memory>
 #include <typeinfo>
 #include <utility>
+#include "LeakedObjectDetector.h"
 
 template<typename NumericType>
 struct Temporary
 {
-    Temporary(NumericType t) : v(t)
-    {
-        std::cout << "I'm a Temporary<" << typeid(v).name() << "> object, #"
-                  << counter++ << std::endl;
+    Temporary(NumericType&& t) : v(std::move(t)) { incCounter(); }
+
+    Temporary(Temporary&& other) : v (std::move(other.v)) 
+    { 
+        incCounter(); 
     }
-    /*
-     revise these conversion functions to read/write to 'v' here
-     hint: what qualifier do read-only functions usually have?
-     */
+
+    ~Temporary(){}
+
+    Temporary& operator=(Temporary&& other)
+    {
+        v = std::move(other.v);
+        return *this;
+    }
+
+    
     operator NumericType() const { return v;}
     operator NumericType&() { return v;}
     
 private:
     static int counter;
     NumericType v;
+
+    void incCounter() 
+    {
+        std::cout << "I'm a Temporary<" << typeid(v).name() << "> object, #" << counter++ << std::endl;
+    }
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Temporary)
 };
 
 template<typename NumericType>
@@ -148,7 +111,19 @@ template <typename NumericType>
 struct Numeric
 {
     using Type = Temporary<NumericType>;
-    explicit Numeric(Type v) : value(std::make_unique<Type>(v)) {}
+
+    Numeric(NumericType&& v) : value(std::make_unique<Type>(std::forward<NumericType>(v))) {}
+    
+
+    Numeric(Numeric&& other) : value(std::move(other.value)) {}
+
+    ~Numeric(){}
+
+    Numeric& operator=(Numeric&& other)
+    {
+        value = std::move(other.value);
+        return *this;
+    }
 
     template <typename OtherType>
     Numeric& operator=(const OtherType& n)
@@ -227,6 +202,7 @@ struct Numeric
 private:
     
     std::unique_ptr<Type> value;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Numeric)
 };
 
 struct Point

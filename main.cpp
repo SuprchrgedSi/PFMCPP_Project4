@@ -73,21 +73,31 @@ Use a service like https://www.diffchecker.com/diff to compare your output.
 template<typename NumericType>
 struct Temporary
 {
-    Temporary(NumericType t) : v(t)
-    {
-        std::cout << "I'm a Temporary<" << typeid(v).name() << "> object, #"
-                  << counter++ << std::endl;
+    Temporary(const NumericType& t) : v(t) { incCounter(); }
+    Temporary(NumericType&& t) : v(std::move(t)) { incCounter(); }
+
+    Temporary(Temporary&& other) : v (std::move(other.v)) 
+    { 
+        incCounter(); 
     }
-    /*
-     revise these conversion functions to read/write to 'v' here
-     hint: what qualifier do read-only functions usually have?
-     */
+
+    Temporary& operator=(Temporary&& other)
+    {
+        v = std::move(other.v);
+        return *this;
+    }
+    
     operator NumericType() const { return v;}
     operator NumericType&() { return v;}
     
 private:
     static int counter;
     NumericType v;
+
+    void incCounter() 
+    {
+        std::cout << "I'm a Temporary<" << typeid(v).name() << "> object, #" << counter++ << std::endl;
+    }
 
     JUCE_DECLARE_NON_COPYABLE(Temporary)
 };
@@ -99,7 +109,19 @@ template <typename NumericType>
 struct Numeric
 {
     using Type = Temporary<NumericType>;
-    explicit Numeric(Type v) : value(std::make_unique<Type>(v)) {}
+
+    Numeric(const NumericType& v) : value(std::make_unique<Type>(v)) {}
+
+    Numeric(NumericType&& v) : value(std::make_unique<Type>(std::forward<NumericType>(v))) {}
+    
+
+    Numeric(Numeric&& other) : value(std::move(other.value)) {}
+
+    Numeric& operator=(Numeric&& other)
+    {
+        value = std::move(other.value);
+        return *this;
+    }
 
     template <typename OtherType>
     Numeric& operator=(const OtherType& n)
